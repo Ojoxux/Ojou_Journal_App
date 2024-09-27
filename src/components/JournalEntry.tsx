@@ -1,29 +1,60 @@
-import React, { useState } from 'react';
-import { Box, Button, Textarea } from '@yamada-ui/react';
+import React, { useState, useEffect } from 'react';
+import { Button, Textarea, VStack, Input } from '@chakra-ui/react';
 
 interface JournalEntryProps {
-  onSave: (content: string) => void;
+  onSave: (title: string, content: string) => void;
+  initialTitle?: string;
+  initialContent?: string;
 }
 
-const JournalEntry: React.FC<JournalEntryProps> = ({ onSave }) => {
-  const [content, setContent] = useState('');
+const JournalEntry: React.FC<JournalEntryProps> = ({
+  onSave,
+  initialTitle = '',
+  initialContent = '',
+}) => {
+  const [title, setTitle] = useState(initialTitle);
+  const [content, setContent] = useState(initialContent);
+
+  useEffect(() => {
+    setTitle(initialTitle);
+    setContent(initialContent);
+  }, [initialTitle, initialContent]);
 
   const handleSave = () => {
-    onSave(content);
+    onSave(title, content);
+    setTitle('');
     setContent('');
   };
 
   return (
-    <Box>
+    <VStack gap="4" align="stretch" bg="gray.800" p="4" borderRadius="md" boxShadow="lg">
+      <Input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Enter a title..."
+        size="lg"
+        bg="gray.700"
+        color="white"
+        border="none"
+        _placeholder={{ color: 'gray.400' }}
+        _focus={{ boxShadow: 'none', bg: 'gray.600' }}
+      />
       <Textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder="今日の出来事を書いてください..."
+        placeholder="Write about what happened today...."
+        size="lg"
+        minHeight="200px"
+        bg="gray.700"
+        color="white"
+        border="none"
+        _placeholder={{ color: 'gray.400' }}
+        _focus={{ boxShadow: 'none', bg: 'gray.600' }}
       />
-      <Button onClick={handleSave} mt={2}>
-        保存
+      <Button onClick={handleSave} colorScheme="whiteAlpha" size="lg">
+        Save
       </Button>
-    </Box>
+    </VStack>
   );
 };
 
