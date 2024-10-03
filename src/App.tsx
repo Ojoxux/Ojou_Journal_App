@@ -7,8 +7,6 @@ import {
   HStack,
   Button,
   Text,
-  Input,
-  Select,
   useDisclosure,
   Alert,
   AlertIcon,
@@ -48,8 +46,8 @@ function AppContent({
   journals: Journal[];
 }) {
   const [localJournals, setLocalJournals] = useState<Journal[]>(journals);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortOrder, setSortOrder] = useState<'date' | 'title'>('date');
+  const [dates, setDates] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [alert, setAlert] = useState<{ status: 'success' | 'error'; message: string } | null>(null);
@@ -77,6 +75,11 @@ function AppContent({
       return () => clearTimeout(timer);
     }
   }, [alert]);
+
+  useEffect(() => {
+    const uniqueDates = Array.from(new Set(journals.map((journal) => journal.date.split('T')[0])));
+    setDates(uniqueDates);
+  }, [journals]);
 
   const handleSave = async (title: string, content: string) => {
     try {
@@ -119,6 +122,10 @@ function AppContent({
     auth.signOut();
   };
 
+  const handleDateClick = (date: string) => {
+    setSelectedDate(date === selectedDate ? null : date);
+  };
+
   const handleJournalClick = (journal: Journal) => {
     setSelectedJournal(journal);
     onOpen();
@@ -139,51 +146,37 @@ function AppContent({
         overflowY="auto"
       >
         <Heading size="md">Daily Journal</Heading>
-        <Input
-          placeholder="Search Journal..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          bg="gray.700"
-          color="white"
-          border="none"
-          _placeholder={{ color: 'gray.400' }}
-          _focus={{ boxShadow: 'none', bg: 'gray.600' }}
-        />
-        <Select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value as 'date' | 'title')}
-          bg="gray.700"
-          color="white"
-          border="none"
-          _focus={{ boxShadow: 'none', bg: 'gray.600' }}
-        >
-          <option value="date">Sort by Date</option>
-          <option value="title">Sort by Title</option>
-        </Select>
         <VStack align="stretch" gap="2" overflowY="auto" flex="1">
-          {localJournals
-            .filter(
-              (journal) =>
-                journal.title.includes(searchQuery) || journal.content.includes(searchQuery)
-            )
-            .sort((a, b) =>
-              sortOrder === 'date'
-                ? new Date(b.date).getTime() - new Date(a.date).getTime()
-                : a.title.localeCompare(b.title)
-            )
-            .map((journal) => (
-              <Box
-                key={journal.id}
-                p="2"
-                bg="gray.700"
-                borderRadius="md"
-                onClick={() => handleJournalClick(journal)}
-                _hover={{ border: '1px solid', borderColor: 'white' }}
-              >
-                <Text fontWeight="bold">{journal.title}</Text>
-                <Text fontSize="sm">{format(new Date(journal.date), 'MMMM dd, yyyy HH:mm')}</Text>
-              </Box>
-            ))}
+          {dates.map((date) => (
+            <Box
+              key={date}
+              p="2"
+              bg="gray.700"
+              borderRadius="md"
+              onClick={() => handleDateClick(date)}
+              _hover={{ border: '1px solid', borderColor: 'white' }}
+            >
+              <Text fontWeight="bold">{format(new Date(date), 'MMMM dd, yyyy')}</Text>
+              {selectedDate === date && (
+                <VStack align="stretch" mt="2">
+                  {localJournals
+                    .filter((journal) => journal.date.startsWith(date))
+                    .map((journal) => (
+                      <Box
+                        key={journal.id}
+                        p="2"
+                        bg="gray.600"
+                        borderRadius="md"
+                        onClick={() => handleJournalClick(journal)}
+                      >
+                        <Text fontWeight="bold">{journal.title}</Text>
+                        <Text fontSize="sm">{journal.content}</Text>
+                      </Box>
+                    ))}
+                </VStack>
+              )}
+            </Box>
+          ))}
         </VStack>
         <Button onClick={handleLogout} colorScheme="whiteAlpha">
           Logout
@@ -265,6 +258,7 @@ function App() {
   const loadJournals = useCallback(async () => {
     try {
       const fetchedJournals = await fetchJournals();
+      console.log('Loaded Journals:', fetchedJournals);
       setJournals(fetchedJournals);
     } catch (error) {
       console.error('Error loading journals:', error);
