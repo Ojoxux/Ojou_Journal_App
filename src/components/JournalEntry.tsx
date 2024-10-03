@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Textarea, VStack, Input } from '@chakra-ui/react';
+import {
+  Button,
+  Textarea,
+  VStack,
+  Input,
+  Alert,
+  AlertIcon,
+  Box,
+  CloseButton,
+} from '@chakra-ui/react';
 
 interface JournalEntryProps {
   onSave: (title: string, content: string) => void;
@@ -14,6 +23,7 @@ const JournalEntry: React.FC<JournalEntryProps> = ({
 }) => {
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
+  const [alert, setAlert] = useState<{ status: 'error'; message: string } | null>(null);
 
   useEffect(() => {
     setTitle(initialTitle);
@@ -21,13 +31,25 @@ const JournalEntry: React.FC<JournalEntryProps> = ({
   }, [initialTitle, initialContent]);
 
   const handleSave = () => {
+    if (!title.trim() || !content.trim()) {
+      setAlert({ status: 'error', message: 'タイトルと本文の両方を入力してください。' });
+      return;
+    }
     onSave(title, content);
     setTitle('');
     setContent('');
+    setAlert(null);
   };
 
   return (
     <VStack gap="4" align="stretch" bg="gray.800" p="4" borderRadius="md" boxShadow="lg">
+      {alert && (
+        <Alert status={alert.status} variant="solid" borderRadius="md" mb="4">
+          <AlertIcon />
+          <Box flex="1">{alert.message}</Box>
+          <CloseButton position="absolute" right="8px" top="8px" onClick={() => setAlert(null)} />
+        </Alert>
+      )}
       <Input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
