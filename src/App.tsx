@@ -14,6 +14,7 @@ import {
   AlertDescription,
   CloseButton,
   Slide,
+  Select,
 } from '@chakra-ui/react';
 import { auth } from './firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -48,11 +49,11 @@ function AppContent({
   const [localJournals, setLocalJournals] = useState<Journal[]>(journals);
   const [dates, setDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose: originalOnClose } = useDisclosure();
   const [selectedJournal, setSelectedJournal] = useState<Journal | null>(null);
   const [alert, setAlert] = useState<{ status: 'success' | 'error'; message: string } | null>(null);
-
   const location = useLocation();
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     if (location.state?.alert) {
@@ -78,8 +79,14 @@ function AppContent({
 
   useEffect(() => {
     const uniqueDates = Array.from(new Set(journals.map((journal) => journal.date.split('T')[0])));
+    uniqueDates.sort((a, b) => {
+      return sortOrder === 'asc'
+        ? new Date(a).getTime() - new Date(b).getTime()
+        : new Date(b).getTime() - new Date(a).getTime();
+    });
     setDates(uniqueDates);
-  }, [journals]);
+    setLocalJournals(journals);
+  }, [journals, sortOrder]); // sortOrderを依存配列に追加
 
   const handleSave = async (title: string, content: string) => {
     try {
@@ -131,6 +138,11 @@ function AppContent({
     onOpen();
   };
 
+  const handleCloseModal = () => {
+    setSelectedJournal(null);
+    originalOnClose();
+  };
+
   return (
     <HStack gap="0" align="stretch" height="100vh">
       <VStack
@@ -146,6 +158,20 @@ function AppContent({
         overflowY="auto"
       >
         <Heading size="md">Daily Journal</Heading>
+        <Select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+          colorScheme="whiteAlpha"
+          borderRadius="md"
+          size="sm"
+          bg="gray.700"
+          color="white"
+          border="none"
+          _focus={{ boxShadow: 'none', bg: 'gray.600' }}
+        >
+          <option value="asc">Oldest</option>
+          <option value="desc">Newest</option>
+        </Select>
         <VStack align="stretch" gap="2" overflowY="auto" flex="1">
           {dates.map((date) => (
             <Box
@@ -160,12 +186,12 @@ function AppContent({
               {selectedDate === date && (
                 <VStack align="stretch" mt="2">
                   {localJournals
-                    .filter((journal) => journal.date.startsWith(date))
+                    .filter((journal) => journal.date.split('T')[0] === date)
                     .map((journal) => (
                       <Box
                         key={journal.id}
                         p="2"
-                        bg="gray.600"
+                        bg="gray.800"
                         borderRadius="md"
                         onClick={() => handleJournalClick(journal)}
                       >
@@ -232,7 +258,7 @@ function AppContent({
       </Box>
       <JournalModal
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleCloseModal}
         journal={selectedJournal}
         onUpdate={handleUpdate}
         onDelete={handleDelete}
