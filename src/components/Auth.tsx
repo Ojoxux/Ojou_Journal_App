@@ -19,11 +19,7 @@ import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-interface AuthProps {
-  onAuthSuccess: () => void;
-}
-
-const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
+const Auth: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +39,6 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
   const handleSignIn = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      onAuthSuccess();
       navigate('/', { state: { alert: 'Successfully logged in.' } });
     } catch (error) {
       console.error('Error signing in:', error);
