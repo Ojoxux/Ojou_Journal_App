@@ -91,11 +91,11 @@ function AppContent({
   const handleSave = async (title: string, content: string) => {
     try {
       const newJournal = await saveJournal(title, content);
-      setLocalJournals([...localJournals, { ...newJournal, title }]);
-      setAlert({ status: 'success', message: 'Journal saved successfully!' });
+      await loadJournals(); // 日記一覧を再取得
+      setAlert({ status: 'success', message: '日記が保存されました！' });
     } catch (error) {
       console.error('Error saving journal:', error);
-      setAlert({ status: 'error', message: 'Failed to save journal.' });
+      setAlert({ status: 'error', message: '日記の保存に失敗しました。' });
     }
   };
 
