@@ -11,7 +11,7 @@ import { Journal } from '../types/journal';
 const Home: React.FC = () => {
   const [journals, setJournals] = useState<Journal[]>([]);
   const [dates, setDates] = useState<string[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [alert, setAlert] = useState<{ status: 'success' | 'error'; message: string } | null>(null);
   const location = useLocation();
@@ -73,7 +73,13 @@ const Home: React.FC = () => {
   };
 
   const handleDateClick = (date: string) => {
-    setSelectedDate(date === selectedDate ? null : date);
+    setSelectedDates((prev) => {
+      if (prev.includes(date)) {
+        return prev.filter((d) => d !== date);
+      } else {
+        return [...prev, date];
+      }
+    });
   };
 
   const handleJournalClick = (journal: Journal) => {
@@ -113,7 +119,7 @@ const Home: React.FC = () => {
     <HStack gap="0" align="stretch" height="100vh">
       <Sidebar
         journals={journals}
-        selectedDate={selectedDate}
+        selectedDates={selectedDates}
         sortOrder={sortOrder}
         onSortOrderChange={setSortOrder}
         onDateClick={handleDateClick}

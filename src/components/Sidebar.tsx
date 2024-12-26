@@ -2,10 +2,11 @@ import React from 'react';
 import { VStack, Box, Heading, Select, Button, Text } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { Journal } from '../types/journal';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 
 interface SidebarProps {
   journals: Journal[];
-  selectedDate: string | null;
+  selectedDates: string[];
   sortOrder: 'asc' | 'desc';
   onSortOrderChange: (order: 'asc' | 'desc') => void;
   onDateClick: (date: string) => void;
@@ -16,7 +17,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({
   journals,
-  selectedDate,
+  selectedDates,
   sortOrder,
   onSortOrderChange,
   onDateClick,
@@ -48,6 +49,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         color="white"
         border="none"
         _focus={{ boxShadow: 'none', bg: 'gray.600' }}
+        icon={<ChevronDownIcon color="white" />}
+        iconSize="20px"
       >
         <option value="asc">Oldest</option>
         <option value="desc">Newest</option>
@@ -61,9 +64,13 @@ const Sidebar: React.FC<SidebarProps> = ({
             borderRadius="md"
             onClick={() => onDateClick(date)}
             _hover={{ border: '1px solid', borderColor: 'white' }}
+            position="relative"
           >
-            <Text fontWeight="bold">{format(new Date(date), 'MMMM dd, yyyy')}</Text>
-            {selectedDate === date && (
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Text fontWeight="bold">{format(new Date(date), 'MMMM dd, yyyy')}</Text>
+              {selectedDates.includes(date) ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            </Box>
+            {selectedDates.includes(date) && (
               <VStack align="stretch" mt="2">
                 {journals
                   .filter((journal) => journal.date.split('T')[0] === date)
