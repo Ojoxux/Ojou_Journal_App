@@ -1,50 +1,59 @@
-# React + TypeScript + Vite
+# おじょうジャーナル
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+日々の出来事などを個人的に記録するためのシンプルな日記アプリケーションです。
 
-Currently, two official plugins are available:
+## 機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 📝 日記の作成・編集・削除
+- 📅 日付ごとの整理
+- 🔒 セキュアなログイン認証
+- 🌓 ダークモードUI
+- 📱 レスポンシブデザイン
 
-## Expanding the ESLint configuration
+## 技術スタック
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- React (^18.3.1)
+- TypeScript (^5.5.3)
+- Firebase (Authentication, Firestore)
+- Chakra UI (^2.8.2)
+- Vite (^5.4.1)
 
-- Configure the top-level `parserOptions` property like this:
+## セットアップ
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+1. リポジトリのクローン:
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+   ```bash
+   git clone https://github.com/yourusername/ojou-journal.git
+   cd ojou-journal
+   ```
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+2. 依存関係のインストール:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+   ```bash
+   npm install
+   ```
+
+3. 環境変数の設定:
+   `.env`ファイルを作成し、以下の Firebase 設定を追加:
+
+   ```
+   VITE_FIREBASE_API_KEY=your_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+   ```
+
+4. 開発サーバーの起動:
+   ```bash
+   npm run dev
+   ```
+
+## 利用可能なスクリプト
+
+- `npm run dev` - 開発サーバーの起動
+- `npm run build` - プロダクションビルドの作成
+- `npm run lint` - ESLintによるコード検証
+- `npm run preview` - ビルドのプレビュー
